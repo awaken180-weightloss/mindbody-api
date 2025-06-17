@@ -8,7 +8,7 @@ module MindBody
         params = prepare_params(options)
 
         class_operation_module.module_eval <<-RUBY_EVAL, __FILE__, __LINE__+1
-          def #{operation.to_s.snakecase}(#{params.join(',')})
+          def #{operation.to_s.parameterize.underscore}(#{params.join(',')})
             req_hash = {
               #{params.select{|p| p != 'locals = {}'}
                       .map{|p| "'#{params_key(p)}' => #{p}"}
@@ -27,8 +27,8 @@ module MindBody
         params = prepare_params(options)
 
         instance_operation_module.module_eval <<-RUBY_EVAL, __FILE__, __LINE__+1
-          def #{operation.to_s.snakecase}(#{params.join(',')})
-            self.class.#{operation.to_s.snakecase} #{params.join(',').chomp(' = {}')}
+          def #{operation.to_s.parameterize.underscore}(#{params.join(',')})
+            self.class.#{operation.to_s.parameterize.underscore} #{params.join(',').chomp(' = {}')}
           end
         RUBY_EVAL
       end
@@ -37,7 +37,7 @@ module MindBody
       # generated method will utilize
       def prepare_params(options)
         params = options[:required] || []
-        params = params.map {|p| p.to_s.snakecase}
+        params = params.map {|p| p.to_s.parameterize.underscore}
         params.push 'locals = {}' if options[:locals].nil? || options[:locals]
         params
       end
